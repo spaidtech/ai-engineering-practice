@@ -1,14 +1,16 @@
-# Day 1 -- Applied AI / ML Engineering (Supervised Learning + Hands-on)
+# Day 1 --- Applied AI / ML Engineering
 
-This document contains **both concepts and executable code** used on
-Day 1. Dataset: Titanic (Kaggle-style tabular dataset)
+## Supervised Learning (Theory + Hands-on)
 
 ------------------------------------------------------------------------
 
 ## 1. ML Engineer Mindset
 
-Machine Learning is not about models.\
-It is about converting raw data into reliable decisions.
+> Machine Learning is not about models.\
+> It is about converting raw data into reliable decisions.
+
+**Key ideas** - Models are tools - Data, features, and decisions matter
+more than algorithms - A good ML engineer reasons before coding
 
 ------------------------------------------------------------------------
 
@@ -26,9 +28,84 @@ It is about converting raw data into reliable decisions.
     → Deployment
     → Monitoring
 
+Most real-world failures happen before modeling.
+
 ------------------------------------------------------------------------
 
-## 3. Data Loading & Inspection
+## 3. Problem Framing (Titanic)
+
+-   Task: Binary classification
+-   Target: Survived
+-   Risk focus: False Negatives are worse (missing survivors)
+-   Metric priority: Recall
+
+------------------------------------------------------------------------
+
+## 4. Baseline Principle
+
+> If a baseline model performs badly,\
+> the problem is usually data or features, not the model.
+
+Baseline used: - Logistic Regression
+
+Why: - Stable - Interpretable - Exposes data issues
+
+------------------------------------------------------------------------
+
+## 5. Models Used (Conceptual)
+
+### Logistic Regression
+
+-   Type: Linear classifier
+-   Strengths: Fast, interpretable, strong baseline
+-   Limitation: Linear decision boundary
+
+### Random Forest
+
+-   Type: Non-linear ensemble
+-   Strengths: Handles interactions well, strong for tabular data
+-   Limitation: Less interpretable
+
+Rule:
+
+    If Random Forest > Logistic Regression
+    → Data has non-linear patterns
+
+------------------------------------------------------------------------
+
+## 6. Evaluation Metrics
+
+### Confusion Matrix
+
+    [[TN FP]
+     [FN TP]]
+
+### Accuracy
+
+-   Overall correctness
+-   Misleading for imbalanced data
+
+### Precision
+
+-   Trust in positive predictions
+-   Important when FP is costly
+
+### Recall
+
+-   Ability to catch positives
+-   Important when FN is costly
+
+### F1-score
+
+-   Balance between precision and recall
+
+For Titanic:
+
+    Recall > Accuracy
+
+------------------------------------------------------------------------
+
+## 7. Data Loading & Inspection
 
 ``` python
 import pandas as pd
@@ -42,7 +119,7 @@ df["Survived"].value_counts()
 
 ------------------------------------------------------------------------
 
-## 4. Feature Engineering (Domain Driven)
+## 8. Feature Engineering (Domain Driven)
 
 ``` python
 df["FamilySize"] = df["SibSp"] + df["Parch"] + 1
@@ -52,7 +129,7 @@ df["IsChild"] = (df["Age"] <= 12).astype(int)
 
 ------------------------------------------------------------------------
 
-## 5. Feature--Target Split
+## 9. Feature--Target Split
 
 ``` python
 X = df.drop("Survived", axis=1)
@@ -68,7 +145,7 @@ cat_cols = ["Sex", "Embarked"]
 
 ------------------------------------------------------------------------
 
-## 6. Train--Test Split
+## 10. Train--Test Split
 
 ``` python
 from sklearn.model_selection import train_test_split
@@ -80,7 +157,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 ------------------------------------------------------------------------
 
-## 7. Preprocessing Pipeline
+## 11. Preprocessing Pipeline
 
 ``` python
 from sklearn.pipeline import Pipeline
@@ -107,7 +184,7 @@ preprocessor = ColumnTransformer(
 
 ------------------------------------------------------------------------
 
-## 8. Baseline Model -- Logistic Regression
+## 12. Baseline Model --- Logistic Regression
 
 ``` python
 from sklearn.linear_model import LogisticRegression
@@ -123,7 +200,10 @@ log_clf.fit(X_train, y_train)
 ### Evaluation
 
 ``` python
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import (
+    accuracy_score, precision_score,
+    recall_score, f1_score, confusion_matrix
+)
 
 y_pred = log_clf.predict(X_test)
 
@@ -136,7 +216,7 @@ confusion_matrix(y_test, y_pred)
 
 ------------------------------------------------------------------------
 
-## 9. Random Forest Model
+## 13. Random Forest Model
 
 ``` python
 from sklearn.ensemble import RandomForestClassifier
@@ -154,7 +234,7 @@ rf_clf.fit(X_train, y_train)
 
 ------------------------------------------------------------------------
 
-## 10. Threshold Tuning
+## 14. Threshold Tuning
 
 ``` python
 y_proba = rf_clf.predict_proba(X_test)[:, 1]
@@ -171,7 +251,7 @@ confusion_matrix(y_test, y_pred_thresh)
 
 ------------------------------------------------------------------------
 
-## 11. Feature Engineering + Random Forest
+## 15. Feature Engineering + Random Forest
 
 ``` python
 rf_clf.fit(X_train, y_train)
@@ -182,18 +262,30 @@ confusion_matrix(y_test, y_pred_rf)
 
 ------------------------------------------------------------------------
 
-## 12. Key Learnings
+## 16. Decision Framework
 
--   Baseline models diagnose data quality
--   Accuracy alone is misleading
--   Recall is critical when FN is costly
+    Baseline
+    → Metrics
+    → Error type (FP vs FN)
+    → Action:
+       - Threshold tuning
+       - Feature engineering
+       - Model upgrade
+
+------------------------------------------------------------------------
+
+## 17. Key Learnings (Day 1)
+
+-   Baselines diagnose data health
+-   Accuracy alone is dangerous
+-   Recall matters when FN is costly
 -   Threshold tuning can outperform model changes
--   Feature engineering helps non-linear models more than linear ones
+-   Feature engineering works best with non-linear models
 -   Pipeline order is critical
 
 ------------------------------------------------------------------------
 
-## 13. Interview-Ready Summary
+## 18. Interview-Ready Summary
 
 I started with a Logistic Regression baseline to validate data quality,
 then used Random Forest to capture non-linear patterns. I improved
